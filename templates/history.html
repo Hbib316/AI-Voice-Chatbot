@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat History</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f7fafc;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .header {
+            background-color: white;
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .header h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        .header-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+        }
+        .content {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        .card {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        button {
+            padding: 0.5rem 1rem;
+            background-color: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #3182ce;
+        }
+        .filter-form {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .filter-form input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.25rem;
+        }
+        .filter-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+        .filter-buttons button {
+            padding: 0.5rem 1rem;
+        }
+        .filter-buttons button:first-child {
+            background-color: #667eea;
+        }
+        .filter-buttons button:last-child {
+            background-color: #a0aec0;
+        }
+        .conversation-item {
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+        .conversation-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .user-message {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        .bot-message {
+            margin-bottom: 0.5rem;
+        }
+        .timestamp {
+            font-size: 0.75rem;
+            color: #718096;
+        }
+        a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        a:hover {
+            color: #434190;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Chat History</h2>
+        <div class="header-links">
+            <a href="/">Back to Chat</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="card">
+            <div class="flex-between">
+                <div>
+                    <p>Total Conversations: <span id="total-conversations">0</span></p>
+                    <p>Last Activity: <span id="last-activity">Never</span></p>
+                </div>
+                <button id="refresh-btn">Refresh</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <form id="filter-form">
+                <div class="filter-form">
+                    <div style="flex: 1;">
+                        <label for="search-messages">Search Messages</label>
+                        <input type="text" id="search-messages" name="keyword" placeholder="Search messages...">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="date-filter">Date</label>
+                        <input type="date" id="date-filter" name="date">
+                    </div>
+                </div>
+                <div class="filter-buttons">
+                    <button type="submit">Apply Filters</button>
+                    <button type="button" id="clear-btn">Clear</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="conversations" class="card">
+            <p>Loading conversations...</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const refreshBtn = document.getElementById('refresh-btn');
+            const filterForm = document.getElementById('filter-form');
+            const clearBtn = document.getElementById('clear-btn');
+            
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', loadHistory);
+            }
+            
+            if (filterForm) {
+                filterForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    searchHistory();
+                });
+            }
+            
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function() {
+                    document.getElementById('search-messages').value = '';
+                    document.getElementById('date-filter').value = '';
+                    loadHistory();
+                });
+            }
+            
+            loadHistory();
+        });
+
+        async function loadHistory() {
+            try {
+                const response = await fetch('/api/history');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateHistoryDisplay(data);
+                } else {
+                    throw new Error(data.error || 'Error loading history');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error loading history', 'error');
+            }
+        }
+
+        async function searchHistory() {
+            const keyword = document.getElementById('search-messages').value.trim();
+            const date = document.getElementById('date-filter').value;
+            
+            const params = new URLSearchParams();
+            if (keyword) params.append('keyword', keyword);
+            if (date) params.append('date', date);
+            
+            try {
+                const response = await fetch(`/api/search_history?${params}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateHistoryDisplay(data);
+                } else {
+                    throw new Error(data.error || 'Search error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Search error', 'error');
+            }
+        }
+
+        function updateHistoryDisplay(data) {
+            const totalElement = document.getElementById('total-conversations');
+            const lastActivityElement = document.getElementById('last-activity');
+            const conversationsElement = document.getElementById('conversations');
+            
+            if (totalElement) {
+                totalElement.textContent = data.total_conversations;
+            }
+            
+            if (lastActivityElement) {
+                lastActivityElement.textContent = data.last_activity;
+            }
+            
+            if (conversationsElement) {
+                if (data.conversations.length === 0) {
+                    conversationsElement.innerHTML = '<p>No conversations found.</p>';
+                } else {
+                    conversationsElement.innerHTML = data.conversations.map(conv => `
+                        <div class="conversation-item">
+                            <div class="user-message">
+                                <strong>You:</strong> ${escapeHtml(conv.user_message)}
+                            </div>
+                            <div class="bot-message">
+                                <strong>Bot:</strong> ${escapeHtml(conv.bot_response)}
+                            </div>
+                            <div class="timestamp">
+                                ${new Date(conv.timestamp).toLocaleString()}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.padding = '12px 24px';
+            notification.style.borderRadius = '8px';
+            notification.style.color = 'white';
+            notification.style.fontWeight = '500';
+            notification.style.zIndex = '1000';
+            notification.style.backgroundColor = type === 'error' ? '#ef4444' : '#3b82f6';
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

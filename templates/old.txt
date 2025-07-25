@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="header">
+        <h1>AI Chatbot</h1>
+        <div>
+            <a href="/history">History</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="model-status">Model Status: Loading...</div>
+        <button id="refresh-model">Refresh Model</button>
+
+        <div id="chat-container">
+            <p> Yo </p>
+        </div>
+
+        <div id="input-container">
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button id="send-btn">Send</button>
+            <button id="new-chat-btn">New Chat</button>
+            <button id="clear-chat-btn">Clear Chat</button>
+            <button id="fine-tune-btn">Fine-tune Model</button>
+        </div>
+    </div>
+
+    <!-- Link to JavaScript file -->
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>
