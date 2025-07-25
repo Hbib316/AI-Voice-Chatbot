@@ -1,6 +1,4 @@
 flask
 gunicorn
-torch
-transformers
-datasets
-passlib
+torch==1.10.0  
+transformers==4.12.0
