@@ -17,8 +17,8 @@ app.secret_key = 'habib'
 
 # Model configuration
 FINE_TUNED_MODEL_PATH = "fine_tuned_model"
-BASE_MODEL_NAME = "microsoft/DialoGPT-medium"
-
+# BASE_MODEL_NAME = "microsoft/DialoGPT-medium"
+BASE_MODEL_NAME = "microsoft/DialoGPT-small"  
 # Global model variables
 tokenizer = None
 model = None
@@ -530,4 +530,6 @@ if __name__ == '__main__':
         print(f"Need at least 10 conversations for fine-tuning (current: {len(conversations)})")
         print("The app will use the base model for now.")
     
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    # app.run(debug=True, host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))  # ← Critical for Render
+    app.run(host='0.0.0.0', port=port)
