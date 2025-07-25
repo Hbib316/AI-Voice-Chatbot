@@ -3,5 +3,4 @@ gunicorn
 torch
 transformers
 datasets
-sqlite3
 passlib
