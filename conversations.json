@@ -242,5 +242,9 @@
   {
     "user": "whats deeplearning",
     "bot": "It's a subset of machine learning that uses neural networks with multiple hidden layers to learn hierarchical representations of data. It's used in computer vision applications. It enables computers to learn and make sense of patterns."
+  },
+  {
+    "user": "hello",
+    "bot": "hey guys"
   }
 ]
