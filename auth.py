@@ -1,5 +1,5 @@
 import sqlite3
-from passlib.hash import bcrypt
+from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 # Database file
@@ -61,7 +61,7 @@ def register_user(username, password, preferred_animal, preferred_color):
             return {"success": False, "message": "Username already taken"}
         
         # Hash password and insert new user
-        hashed_password = bcrypt.hash(password)
+        hashed_password = generate_password_hash(password)
         cursor.execute('INSERT INTO users (username, password, preferred_animal, preferred_color) VALUES (?, ?, ?, ?)', 
                        (username, hashed_password, preferred_animal, preferred_color))
         conn.commit()
@@ -86,7 +86,7 @@ def login_user(username, password):
         if not user:
             return {"success": False, "message": "User not found"}
         
-        if not bcrypt.verify(password, user[1]):
+        if not check_password_hash(user[1], password):
             return {"success": False, "message": "Incorrect password"}
         
         return {"success": True, "message": "Login successful", "user_id": user[0], "username": username}
@@ -111,7 +111,7 @@ def verify_reset_credentials(username, preferred_animal, preferred_color):
 def update_password(user_id, new_password):
     """Update the user's password in the database."""
     try:
-        hashed_password = bcrypt.hash(new_password)
+        hashed_password = generate_password_hash(new_password)
         conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
         cursor.execute('UPDATE users SET password = ? WHERE id = ?', (hashed_password, user_id))

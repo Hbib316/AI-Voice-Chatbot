@@ -4,8 +4,11 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 import sqlite3
 import os
 import json
-from auth import init_db, register_user, login_user, get_user_conversations, save_conversation_to_db, verify_reset_credentials, update_password
+# Remove this line:
+# from passlib.hash import bcrypt
 
+# Change the import from auth to:
+from auth import init_db, register_user, login_user, get_user_conversations, save_conversation_to_db, verify_reset_credentials, update_password
 
 
 app = Flask(__name__)

@@ -1,5 +1,5 @@
 flask
 gunicorn
-torch  
+torch
 transformers
 numpy
