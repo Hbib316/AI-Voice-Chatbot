@@ -2,40 +2,72 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 import sqlite3
 import os
 import json
-import requests
+import re
 from auth import init_db, register_user, login_user, get_user_conversations, save_conversation_to_db, verify_reset_credentials, update_password
 
 app = Flask(__name__)
 app.secret_key = 'habib'
 
-class HuggingFaceChatbot:
+# Simple rule-based chatbot instead of transformer models
+class SimpleChatbot:
     def __init__(self):
-        self.api_token = os.environ.get('HUGGINGFACE_API_TOKEN')  # Set this in Render
-        self.api_url = "https://api-inference.huggingface.co/models/microsoft/DialoGPT-small"
-        self.headers = {"Authorization": f"Bearer {self.api_token}"}
+        self.intents_data = self.load_intents_data()
+        self.conversation_history = []
+    
+    def load_intents_data(self):
+        """Load intents.json file"""
+        try:
+            with open("intents.json", "r") as f:
+                return json.load(f)
+        except FileNotFoundError:
+            return {"intents": []}
+    
+    def preprocess_text(self, text):
+        """Simple text preprocessing"""
+        return re.sub(r'[^\w\s]', '', text.lower().strip())
+    
+    def find_best_intent(self, user_input):
+        """Find the best matching intent based on keywords"""
+        user_input = self.preprocess_text(user_input)
+        best_match = None
+        best_score = 0
+        
+        for intent in self.intents_data.get("intents", []):
+            score = 0
+            for pattern in intent.get("patterns", []):
+                pattern_processed = self.preprocess_text(pattern)
+                # Simple keyword matching
+                common_words = set(user_input.split()) & set(pattern_processed.split())
+                if common_words:
+                    score += len(common_words) / len(pattern_processed.split())
+            
+            if score > best_score:
+                best_score = score
+                best_match = intent
+        
+        return best_match if best_score > 0.3 else None
     
     def generate_response(self, user_input):
-        """Generate response using Hugging Face Inference API"""
-        if not self.api_token:
-            return "API token not configured"
+        """Generate response based on intents"""
+        intent = self.find_best_intent(user_input)
         
-        try:
-            payload = {"inputs": user_input}
-            response = requests.post(self.api_url, headers=self.headers, json=payload, timeout=10)
-            
-            if response.status_code == 200:
-                result = response.json()
-                if isinstance(result, list) and len(result) > 0:
-                    return result[0].get('generated_text', 'No response generated')
-                return "No response generated"
-            else:
-                return "API request failed"
-        except Exception as e:
-            return "Error generating response"
+        if intent:
+            responses = intent.get("responses", ["I'm not sure how to respond to that."])
+            import random
+            return random.choice(responses)
+        else:
+            # Fallback responses
+            fallback_responses = [
+                "I'm not sure I understand. Could you rephrase that?",
+                "That's interesting! Can you tell me more about machine learning or deep learning?",
+                "I'm here to help with ML and DL questions. What would you like to know?",
+                "Could you ask that in a different way? I'm specialized in AI topics."
+            ]
+            import random
+            return random.choice(fallback_responses)
 
-# Usage in your app:
-chatbot = HuggingFaceChatbot() 
-
+# Initialize simple chatbot
+chatbot = SimpleChatbot()
 # File to store conversations
 CONVERSATION_FILE = "conversations.json"
 

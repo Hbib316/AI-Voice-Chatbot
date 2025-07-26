@@ -246,5 +246,13 @@
   {
     "user": "hello",
     "bot": "hey guys"
+  },
+  {
+    "user": "Hello.",
+    "bot": "API token not configured"
+  },
+  {
+    "user": "hello",
+    "bot": "API token not configured"
   }
 ]
