@@ -98,17 +98,29 @@
             border-radius: 8px;
             font-size: 16px;
         }
+        .info-banner {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #0c5460;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🤖 AI Voice Chatbot</h1>
         
+        <div class="info-banner">
+            ℹ️ Memory-optimized version using rule-based responses
+        </div>
+        
         <div class="button-group">
             <button id="start-voice" class="voice-btn">🎤 Speak</button>
             <button id="new-chat" class="secondary-btn">🆕 New Chat</button>
             <button id="history-btn" class="secondary-btn">📜 History</button>
-            <button id="fine-tune-btn" class="action-btn">🛠 Fine-tune</button>
             <button id="logout-btn" class="danger-btn">🚪 Logout</button>
         </div>
         
@@ -127,7 +139,6 @@
     const startVoiceBtn = document.getElementById('start-voice');
     const newChatBtn = document.getElementById('new-chat');
     const historyBtn = document.getElementById('history-btn');
-    const fineTuneBtn = document.getElementById('fine-tune-btn');
     const logoutBtn = document.getElementById('logout-btn');
     const textInput = document.getElementById('text-input');
     const sendTextBtn = document.getElementById('send-text-btn');
@@ -135,10 +146,18 @@
 
     // Speech recognition and synthesis
     const synth = window.speechSynthesis;
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'en-US'; // English language recognition
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+    let recognition = null;
+
+    // Initialize speech recognition if available
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+    } else {
+        // Hide voice button if not supported
+        startVoiceBtn.style.display = 'none';
+    }
 
     // Add message to chat display
     function addMessage(text, isUser = false) {
@@ -166,10 +185,12 @@
             const botResponse = data.response || "Error generating response";
             addMessage(botResponse, false);
 
-            // Speech synthesis (will speak in English)
-            const utterance = new SpeechSynthesisUtterance(botResponse);
-            utterance.lang = 'en-US'; // English speech synthesis
-            synth.speak(utterance);
+            // Speech synthesis (will speak in English) if available
+            if (synth && synth.speaking === false) {
+                const utterance = new SpeechSynthesisUtterance(botResponse);
+                utterance.lang = 'en-US';
+                synth.speak(utterance);
+            }
 
         } catch (error) {
             console.error('Request error:', error);
@@ -178,26 +199,28 @@
     }
 
     // Voice recognition
-    startVoiceBtn.addEventListener('click', () => {
-        recognition.start();
-        startVoiceBtn.textContent = '🎙️ Listening...';
-    });
+    if (recognition) {
+        startVoiceBtn.addEventListener('click', () => {
+            recognition.start();
+            startVoiceBtn.textContent = '🎙️ Listening...';
+        });
 
-    recognition.addEventListener('result', (event) => {
-        const transcript = event.results[0][0].transcript;
-        sendMessage(transcript);
-        startVoiceBtn.textContent = '🎤 Speak';
-    });
+        recognition.addEventListener('result', (event) => {
+            const transcript = event.results[0][0].transcript;
+            sendMessage(transcript);
+            startVoiceBtn.textContent = '🎤 Speak';
+        });
 
-    recognition.addEventListener('error', (event) => {
-        console.error('Speech recognition error:', event.error);
-        addMessage('Speech recognition error', false);
-        startVoiceBtn.textContent = '🎤 Speak';
-    });
+        recognition.addEventListener('error', (event) => {
+            console.error('Speech recognition error:', event.error);
+            addMessage('Speech recognition error', false);
+            startVoiceBtn.textContent = '🎤 Speak';
+        });
 
-    recognition.addEventListener('end', () => {
-        startVoiceBtn.textContent = '🎤 Speak';
-    });
+        recognition.addEventListener('end', () => {
+            startVoiceBtn.textContent = '🎤 Speak';
+        });
+    }
 
     // Text input
     sendTextBtn.addEventListener('click', () => {
@@ -241,34 +264,14 @@
         window.location.href = '/history';
     });
 
-    // Fine-tuning button
-    fineTuneBtn.addEventListener('click', async () => {
-        if (confirm('Are you sure you want to start fine-tuning? This may take some time.')) {
-            try {
-                const response = await fetch('/fine_tune', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                
-                const data = await response.json();
-                if (data.message) {
-                    alert(data.message);
-                    if (data.redirect) {
-                        window.location.href = data.redirect;
-                    }
-                } else if (data.error) {
-                    alert(data.error);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Fine-tuning error');
-            }
-        }
-    });
-
     // Logout button
     logoutBtn.addEventListener('click', () => {
         window.location.href = '/logout';
+    });
+
+    // Add welcome message
+    window.addEventListener('load', () => {
+        addMessage('Hello! I\'m your AI assistant specialized in Machine Learning and Deep Learning. How can I help you today?', false);
     });
     </script>
 </body>

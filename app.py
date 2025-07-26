@@ -1,131 +1,48 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
 import sqlite3
 import os
 import json
-# Remove this line:
-# from passlib.hash import bcrypt
-
-# Change the import from auth to:
+import requests
 from auth import init_db, register_user, login_user, get_user_conversations, save_conversation_to_db, verify_reset_credentials, update_password
-
 
 app = Flask(__name__)
 app.secret_key = 'habib'
 
-# Model configuration
-FINE_TUNED_MODEL_PATH = "fine_tuned_model"
-# BASE_MODEL_NAME = "microsoft/DialoGPT-medium"
-BASE_MODEL_NAME = "microsoft/DialoGPT-small"  
-# Global model variables
-tokenizer = None
-model = None
-is_fine_tuned = False
-
-# Load model and tokenizer
-def load_model():
-    global tokenizer, model, is_fine_tuned
+class HuggingFaceChatbot:
+    def __init__(self):
+        self.api_token = os.environ.get('HUGGINGFACE_API_TOKEN')  # Set this in Render
+        self.api_url = "https://api-inference.huggingface.co/models/microsoft/DialoGPT-small"
+        self.headers = {"Authorization": f"Bearer {self.api_token}"}
     
-    if os.path.exists(FINE_TUNED_MODEL_PATH) and os.path.exists(os.path.join(FINE_TUNED_MODEL_PATH, "config.json")):
-        print(f"Loading fine-tuned model from {FINE_TUNED_MODEL_PATH}")
-        tokenizer = AutoTokenizer.from_pretrained(FINE_TUNED_MODEL_PATH)
-        model = AutoModelForCausalLM.from_pretrained(FINE_TUNED_MODEL_PATH)
-        is_fine_tuned = True
-    else:
-        print(f"Fine-tuned model not found. Loading base model: {BASE_MODEL_NAME}")
-        tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL_NAME)
-        model = AutoModelForCausalLM.from_pretrained(BASE_MODEL_NAME)
-        is_fine_tuned = False
-    tokenizer.pad_token="[PAD]"
-    
-    print(f"Model loaded successfully: {'Fine-tuned' if is_fine_tuned else 'Base'}")
-    return tokenizer, model, is_fine_tuned
+    def generate_response(self, user_input):
+        """Generate response using Hugging Face Inference API"""
+        if not self.api_token:
+            return "API token not configured"
+        
+        try:
+            payload = {"inputs": user_input}
+            response = requests.post(self.api_url, headers=self.headers, json=payload, timeout=10)
+            
+            if response.status_code == 200:
+                result = response.json()
+                if isinstance(result, list) and len(result) > 0:
+                    return result[0].get('generated_text', 'No response generated')
+                return "No response generated"
+            else:
+                return "API request failed"
+        except Exception as e:
+            return "Error generating response"
 
-# Initialize model and tokenizer
-load_model()
+# Usage in your app:
+chatbot = HuggingFaceChatbot() 
 
 # File to store conversations
 CONVERSATION_FILE = "conversations.json"
 
-def get_user_chat_history():
-    if 'chat_history_ids' not in session:
-        session['chat_history_ids'] = None
-    return session['chat_history_ids']
-
-def set_user_chat_history(chat_history_ids):
-    if chat_history_ids is not None:
-        session['chat_history_ids'] = chat_history_ids.tolist()
-    else:
-        session['chat_history_ids'] = None
-
-def tensor_from_session(chat_history_list):
-    if chat_history_list is None:
-        return None
-    return torch.tensor(chat_history_list)
-
-def generate_response(user_input, chat_history_ids=None):
-    global model, tokenizer
-    
-    new_user_input_ids = tokenizer.encode(user_input + tokenizer.eos_token, return_tensors='pt')
-
-    bot_input_ids = torch.cat([chat_history_ids, new_user_input_ids], dim=-1) if chat_history_ids is not None else new_user_input_ids
-
-    chat_history_ids = model.generate(
-        bot_input_ids,
-        max_length=1000,
-        pad_token_id=tokenizer.eos_token_id,
-        no_repeat_ngram_size=3,
-        do_sample=True,
-        top_k=50,
-        top_p=0.95,
-        temperature=0.8,
-        early_stopping=True
-    )
-
-    bot_response = tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0], skip_special_tokens=True)
-    return bot_response, chat_history_ids
-
-def load_intents_data():
-    """Load and process intents.json file"""
-    try:
-        with open("intents.json", "r") as f:
-            intents_data = json.load(f)
-        return intents_data
-    except FileNotFoundError:
-        print("intents.json not found!")
-        return {"intents": []}
-    except json.JSONDecodeError:
-        print("Error parsing intents.json!")
-        return {"intents": []}
-
-def convert_intents_to_conversations():
-    """Convert intents.json to conversation format for fine-tuning"""
-    intents_data = load_intents_data()
-    conversations = []
-    
-    for intent in intents_data.get("intents", []):
-        patterns = intent.get("patterns", [])
-        responses = intent.get("responses", [])
-        
-        # Create conversations by pairing each pattern with each response
-        for pattern in patterns:
-            for response in responses:
-                # Clean HTML tags from responses for training
-                clean_response = response.replace('<a target="_blank" href="', '').replace('">', ' ').replace('</a>', '')
-                conversations.append({
-                    "user": pattern.strip(),
-                    "bot": clean_response.strip(),
-                    "tag": intent.get("tag", "unknown")
-                })
-    
-    return conversations
-
 def load_conversations():
-    """Load conversations from both sources"""
+    """Load conversations from file"""
     conversations = []
     
-    # First try to load from existing conversations.json
     if os.path.exists(CONVERSATION_FILE):
         try:
             with open(CONVERSATION_FILE, "r") as f:
@@ -133,29 +50,22 @@ def load_conversations():
         except:
             pass
     
-    # Then add conversations from intents.json
-    intent_conversations = convert_intents_to_conversations()
-    conversations.extend(intent_conversations)
-    
     return conversations
 
 def save_conversation(user_input, bot_response):
-    conversations = []
-    
-    # Load existing conversations
-    if os.path.exists(CONVERSATION_FILE):
-        try:
-            with open(CONVERSATION_FILE, "r") as f:
-                conversations = json.load(f)
-        except:
-            conversations = []
-    
-    # Add new conversation
+    """Save conversation to file and database"""
+    conversations = load_conversations()
     conversations.append({"user": user_input, "bot": bot_response})
     
-    # Save back to file
-    with open(CONVERSATION_FILE, "w") as f:
-        json.dump(conversations, f, indent=2)
+    # Keep only last 100 conversations to save space
+    if len(conversations) > 100:
+        conversations = conversations[-100:]
+    
+    try:
+        with open(CONVERSATION_FILE, "w") as f:
+            json.dump(conversations, f, indent=2)
+    except:
+        pass
     
     # Save to database if user is logged in
     if 'user_id' in session:
@@ -177,7 +87,6 @@ def login():
         if result['success']:
             session['user_id'] = result['user_id']
             session['username'] = result['username']
-            session['chat_history_ids'] = None
             return redirect(url_for('index'))
         else:
             return render_template('login.html', error=result['message'])
@@ -243,12 +152,10 @@ def chat():
     if len(user_input) > 500:
         return jsonify({'error': 'Input too long'}), 400
 
-    chat_history_list = get_user_chat_history()
-    chat_history_ids = tensor_from_session(chat_history_list)
-
-    bot_response, new_chat_history_ids = generate_response(user_input, chat_history_ids)
-
-    set_user_chat_history(new_chat_history_ids)
+    # Generate response using simple chatbot
+    bot_response = chatbot.generate_response(user_input)
+    
+    # Save conversation
     save_conversation(user_input, bot_response)
 
     return jsonify({'response': bot_response})
@@ -258,176 +165,21 @@ def clear_history():
     if 'user_id' not in session:
         return jsonify({'error': 'Not authenticated'}), 401
     
-    session['chat_history_ids'] = None
-    
     return jsonify({'message': 'Chat history cleared'})
 
 @app.route('/health')
 def health_check():
     return jsonify({
         'status': 'healthy', 
-        'model_loaded': model is not None,
-        'fine_tuned': is_fine_tuned,
-        'model_path': FINE_TUNED_MODEL_PATH if is_fine_tuned else BASE_MODEL_NAME
+        'model_type': 'rule-based',
+        'memory_optimized': True
     })
-
-@app.route('/fine_tune', methods=['POST'])
-def trigger_fine_tuning():
-    if 'user_id' not in session:
-        return jsonify({'error': 'Not authenticated'}), 401
-    
-    try:
-        conversations = load_conversations()
-        if len(conversations) < 10:
-            return jsonify({'error': f'Not enough conversation data for fine-tuning (minimum 10 required, found {len(conversations)})'}), 400
-        
-        result = fine_tune_model()
-        
-        if result['success']:
-            load_model()
-            session.clear()
-            
-            return jsonify({
-                'message': 'Fine-tuning completed successfully. Please log in again.',
-                'model_path': FINE_TUNED_MODEL_PATH,
-                'redirect': '/login'
-            })
-        else:
-            return jsonify({'error': f'Fine-tuning failed: {result["error"]}'}), 500
-            
-    except Exception as e:
-        return jsonify({'error': f'Fine-tuning error: {str(e)}'}), 500
-
-def fine_tune_model():
-    try:
-        from datasets import Dataset
-        from transformers import Trainer, TrainingArguments, DataCollatorForLanguageModeling
-        
-        conversations = load_conversations()
-        if len(conversations) < 10:
-            return {'success': False, 'error': f'Not enough conversation data (found {len(conversations)}, need at least 10)'}
-        
-        print(f"Starting fine-tuning with {len(conversations)} conversations...")
-        
-        # Create training texts
-        texts = []
-        for conv in conversations:
-            # Format: user_input<eos>bot_response<eos>
-            text = conv["user"] + tokenizer.eos_token + conv["bot"] + tokenizer.eos_token
-            texts.append(text)
-        
-        # Create dataset
-        dataset = Dataset.from_dict({"text": texts})
-        
-        def tokenize_function(examples):
-            return tokenizer(
-                examples["text"],
-                truncation=True,
-                padding='max_length',
-                max_length=512,
-                return_tensors="pt"
-            )
-        
-        # Tokenize dataset
-        tokenized_dataset = dataset.map(
-            tokenize_function,
-            batched=True,
-            remove_columns=["text"]
-        )
-        
-        # Set labels for language modeling
-        tokenized_dataset = tokenized_dataset.map(
-            lambda examples: {"labels": examples["input_ids"]},
-            batched=True
-        )
-        
-        # Create output directory
-        os.makedirs(FINE_TUNED_MODEL_PATH, exist_ok=True)
-        
-        # Training arguments
-        training_args = TrainingArguments(
-            output_dir=FINE_TUNED_MODEL_PATH,
-            overwrite_output_dir=True,
-            num_train_epochs=3,
-            per_device_train_batch_size=2,
-            per_device_eval_batch_size=2,
-            warmup_steps=50,
-            logging_steps=10,
-            save_steps=500,
-            save_total_limit=2,
-            prediction_loss_only=True,
-            remove_unused_columns=True,
-            dataloader_pin_memory=False,
-            gradient_accumulation_steps=2,
-            fp16=True,
-            learning_rate=5e-5,
-            weight_decay=0.01,
-            report_to=None,  # Disable wandb and other reporting
-        )
-        
-        # Data collator
-        data_collator = DataCollatorForLanguageModeling(
-            tokenizer=tokenizer,
-            mlm=False,
-        )
-        
-        # Create trainer
-        trainer = Trainer(
-            model=model,
-            args=training_args,
-            train_dataset=tokenized_dataset,
-            data_collator=data_collator,
-        )
-        
-        print("Starting fine-tuning...")
-        trainer.train()
-        
-        print(f"Saving fine-tuned model to {FINE_TUNED_MODEL_PATH}")
-        model.save_pretrained(FINE_TUNED_MODEL_PATH)
-        tokenizer.save_pretrained(FINE_TUNED_MODEL_PATH)
-        
-        print("Fine-tuning completed successfully!")
-        return {'success': True, 'model_path': FINE_TUNED_MODEL_PATH}
-        
-    except Exception as e:
-        print(f"Fine-tuning error: {str(e)}")
-        return {'success': False, 'error': str(e)}
-
-@app.route('/model_info')
-def model_info():
-    conversations = load_conversations()
-    intents_data = load_intents_data()
-    
-    return jsonify({
-        'is_fine_tuned': is_fine_tuned,
-        'model_path': FINE_TUNED_MODEL_PATH if is_fine_tuned else BASE_MODEL_NAME,
-        'conversation_count': len(conversations),
-        'intents_count': len(intents_data.get('intents', [])),
-        'fine_tuned_model_exists': os.path.exists(FINE_TUNED_MODEL_PATH),
-        'intents_file_exists': os.path.exists('intents.json')
-    })
-
-@app.route('/reload_model', methods=['POST'])
-def reload_model():
-    if 'user_id' not in session:
-        return jsonify({'error': 'Not authenticated'}), 401
-    
-    try:
-        load_model()
-        return jsonify({
-            'message': 'Model reloaded successfully',
-            'is_fine_tuned': is_fine_tuned,
-            'model_path': FINE_TUNED_MODEL_PATH if is_fine_tuned else BASE_MODEL_NAME
-        })
-    except Exception as e:
-        return jsonify({'error': f'Error reloading model: {str(e)}'}), 500
 
 @app.route('/new_chat', methods=['POST'])
 def new_chat():
     if 'user_id' not in session:
         return jsonify({'error': 'Not authenticated'}), 401
     
-    session['chat_history_ids'] = None
     return jsonify({'message': 'New chat session started'})
 
 @app.route('/api/search_history', methods=['GET'])
@@ -500,35 +252,30 @@ def forgot_password():
     
     return render_template('forgot_password.html', message=request.args.get('message'))
 
-# New route to view intents data
-@app.route('/api/intents')
-def api_intents():
-    if 'user_id' not in session:
-        return jsonify({'error': 'Not authenticated'}), 401
+@app.route('/model_info')
+def model_info():
+    conversations = load_conversations()
     
-    intents_data = load_intents_data()
-    return jsonify(intents_data)
+    return jsonify({
+        'is_fine_tuned': False,
+        'model_type': 'rule-based',
+        'conversation_count': len(conversations),
+        'memory_optimized': True
+    })
+
+# Remove fine-tuning related endpoints to save memory
+# @app.route('/fine_tune', methods=['POST']) - REMOVED
+# @app.route('/reload_model', methods=['POST']) - REMOVED
 
 if __name__ == '__main__':
     print("Initializing database...")
     init_db()
     
-    print(f"Model loaded: {'Fine-tuned' if is_fine_tuned else 'Base'} model")
-    print(f"Model path: {FINE_TUNED_MODEL_PATH if is_fine_tuned else BASE_MODEL_NAME}")
+    print("Memory-optimized chatbot initialized")
+    print("Using rule-based responses instead of transformer models")
     
-    # Load and display conversation data info
     conversations = load_conversations()
-    intents_data = load_intents_data()
+    print(f"Found {len(conversations)} conversations")
     
-    print(f"Found {len(conversations)} total conversations for training")
-    print(f"Found {len(intents_data.get('intents', []))} intents in intents.json")
-    
-    if len(conversations) >= 10:
-        print("Sufficient training data found. You can trigger fine-tuning via /fine_tune endpoint")
-    else:
-        print(f"Need at least 10 conversations for fine-tuning (current: {len(conversations)})")
-        print("The app will use the base model for now.")
-    
-    # app.run(debug=True, host="0.0.0.0", port=5000)
-    port = int(os.environ.get("PORT", 5000))  # ← Critical for Render
+    port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
