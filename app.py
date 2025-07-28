@@ -6,7 +6,7 @@ from auth import init_db, register_user, login_user, get_user_conversations, sav
 from chatbot_model import MLChatbot
 
 app = Flask(__name__)
-app.secret_key = 'habib'
+app.secret_key = os.environ.get('SECRET_KEY', 'habib')
 
 # Global chatbot instance
 chatbot = None
@@ -21,10 +21,13 @@ def initialize_chatbot():
         print("Initializing chatbot...")
         chatbot = MLChatbot()
         print("✅ Chatbot initialized successfully!")
+        return True
     except Exception as e:
         print(f"❌ Error initializing chatbot: {e}")
         # Create a fallback chatbot
         chatbot = FallbackChatbot()
+        print("✅ Fallback chatbot initialized")
+        return False
 
 class FallbackChatbot:
     """Fallback chatbot if main chatbot fails"""
@@ -33,7 +36,8 @@ class FallbackChatbot:
             "I'm having some technical difficulties. Please try again later.",
             "Sorry, I'm not feeling well right now. Can you rephrase that?",
             "I'm currently learning. Could you try a simpler question?",
-            "My brain is updating. Please be patient with me!"
+            "My brain is updating. Please be patient with me!",
+            "Hello! I'm here to help with machine learning and deep learning questions."
         ]
         import random
         return random.choice(responses)
@@ -52,7 +56,8 @@ def load_conversations():
         try:
             with open(CONVERSATION_FILE, "r") as f:
                 conversations.extend(json.load(f))
-        except:
+        except Exception as e:
+            print(f"Error loading conversations: {e}")
             pass
     
     return conversations
@@ -69,7 +74,8 @@ def save_conversation(user_input, bot_response):
     try:
         with open(CONVERSATION_FILE, "w") as f:
             json.dump(conversations, f, indent=2)
-    except:
+    except Exception as e:
+        print(f"Error saving conversations to file: {e}")
         pass
     
     # Save to database if user is logged in
@@ -152,6 +158,12 @@ def api_history():
 def chat():
     global chatbot
     
+    # Vérifier si le chatbot est initialisé
+    if chatbot is None:
+        print("Chatbot not initialized, attempting to initialize...")
+        if not initialize_chatbot():
+            return jsonify({'error': 'Chatbot initialization failed'}), 500
+    
     user_input = request.json.get('message', '').strip()
 
     if not user_input:
@@ -162,6 +174,11 @@ def chat():
     try:
         # Generate response using chatbot
         bot_response = chatbot.generate_response(user_input)
+        
+        # Vérifier si la réponse est valide
+        if not bot_response or bot_response.strip() == "":
+            bot_response = "I'm sorry, I couldn't generate a proper response. Could you try rephrasing your question?"
+            
     except Exception as e:
         print(f"Error generating response: {e}")
         bot_response = "Sorry, I encountered an error. Please try again."
@@ -181,13 +198,23 @@ def clear_history():
 @app.route('/health')
 def health_check():
     global chatbot
-    model_info = chatbot.get_model_info() if hasattr(chatbot, 'get_model_info') else {}
+    
+    # Vérifier l'état du chatbot
+    chatbot_status = "healthy" if chatbot is not None else "not_initialized"
+    model_info = {}
+    
+    if chatbot and hasattr(chatbot, 'get_model_info'):
+        try:
+            model_info = chatbot.get_model_info()
+        except:
+            model_info = {"status": "error_getting_info"}
     
     return jsonify({
-        'status': 'healthy', 
+        'status': chatbot_status, 
         'model_type': model_info.get('model_type', 'unknown'),
         'memory_optimized': True,
-        'model_info': model_info
+        'model_info': model_info,
+        'chatbot_initialized': chatbot is not None
     })
 
 @app.route('/new_chat', methods=['POST'])
@@ -271,11 +298,18 @@ def forgot_password():
 def model_info():
     global chatbot
     conversations = load_conversations()
-    model_info = chatbot.get_model_info() if hasattr(chatbot, 'get_model_info') else {}
+    model_info = {}
+    
+    if chatbot and hasattr(chatbot, 'get_model_info'):
+        try:
+            model_info = chatbot.get_model_info()
+        except:
+            model_info = {"status": "error_getting_info"}
     
     return jsonify({
         'conversation_count': len(conversations),
         'memory_optimized': True,
+        'chatbot_initialized': chatbot is not None,
         **model_info
     })
 
@@ -288,10 +322,28 @@ def retrain_model():
     global chatbot
     try:
         print("Retraining model...")
-        chatbot.train_model()
-        return jsonify({'message': 'Model retrained successfully!'})
+        if chatbot and hasattr(chatbot, 'train_model'):
+            chatbot.train_model()
+            return jsonify({'message': 'Model retrained successfully!'})
+        else:
+            return jsonify({'error': 'Chatbot not properly initialized'}), 500
     except Exception as e:
         return jsonify({'error': f'Error retraining model: {str(e)}'}), 500
+
+# Route pour réinitialiser le chatbot
+@app.route('/reinitialize_chatbot', methods=['POST'])
+def reinitialize_chatbot():
+    """Endpoint to reinitialize the chatbot"""
+    global chatbot
+    try:
+        print("Reinitializing chatbot...")
+        success = initialize_chatbot()
+        if success:
+            return jsonify({'message': 'Chatbot reinitialized successfully!'})
+        else:
+            return jsonify({'message': 'Chatbot initialized with fallback mode'})
+    except Exception as e:
+        return jsonify({'error': f'Error reinitializing chatbot: {str(e)}'}), 500
 
 if __name__ == '__main__':
     print("🚀 Starting Memory-Optimized Chatbot Server...")
@@ -302,6 +354,7 @@ if __name__ == '__main__':
     init_db()
     
     # Initialize chatbot (will auto-train if model doesn't exist)
+    print("🤖 Initializing chatbot...")
     initialize_chatbot()
     
     # Load existing conversations

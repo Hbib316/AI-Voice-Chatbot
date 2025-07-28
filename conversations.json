@@ -274,5 +274,9 @@
   {
     "user": "hello",
     "bot": "Good to see you! I'm here to help with your machine learning and deep learning questions."
+  },
+  {
+    "user": "Hello, how are you?",
+    "bot": "Hello! I'm your AI assistant specialized in Machine Learning and Deep Learning. How can I help you today?"
   }
 ]
