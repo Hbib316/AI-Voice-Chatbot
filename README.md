@@ -32,7 +32,7 @@ gunicorn -c gunicorn.conf.py app:app
 
 Usage
 
-Access the Application:Open your browser and navigate to [http://localhost:5000 (or the deployed URL if hosted).](https://ai-voice-chatbot-oa9o.onrender.com)
+Access the Application:Open your browser and navigate to https://ai-voice-chatbot-oa9o.onrender.com
 
 Register/Login:
 
