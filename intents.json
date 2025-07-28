@@ -3,154 +3,338 @@
     {
       "tag": "greeting",
       "patterns": [
-        "Hi", "Hello", "Hey", "Good day", "What's up", "How are you", "Good morning", "Good afternoon"
+        "Hi", "Hello", "Hey", "Good day", "What's up", "How are you", "Good morning", 
+        "Good afternoon", "Good evening", "Howdy", "Greetings", "Sup", "Yo", "Hiya",
+        "Nice to meet you", "Hello there", "Hi there", "Good to see you"
       ],
       "responses": [
         "Hello! I'm your AI assistant specialized in Machine Learning and Deep Learning. How can I help you today?",
         "Hi there! Ready to explore the world of ML and DL? What would you like to know?",
-        "Good to see you! I'm here to help with your machine learning and deep learning questions."
+        "Good to see you! I'm here to help with your machine learning and deep learning questions.",
+        "Welcome! I'm excited to help you learn about AI, ML, and DL. What's on your mind?",
+        "Hey! Whether you're a beginner or expert, I'm here to assist with all things machine learning!"
       ]
     },
     {
       "tag": "goodbye",
       "patterns": [
-        "bye", "goodbye", "see you later", "cya", "ttyl", "gtg", "leaving", "exit"
+        "bye", "goodbye", "see you later", "cya", "ttyl", "gtg", "leaving", "exit",
+        "farewell", "catch you later", "until next time", "signing off", "talk to you later",
+        "gotta go", "see ya", "take care", "have a good day", "later"
       ],
       "responses": [
         "Goodbye! Keep learning and building amazing AI models!",
         "See you later! Happy coding with ML/DL!",
-        "Thanks for learning with me! Come back anytime for more AI insights."
+        "Thanks for learning with me! Come back anytime for more AI insights.",
+        "Take care! Remember, the best way to learn ML is by doing. Keep practicing!",
+        "Until next time! May your models converge and your accuracy be high!"
       ]
     },
     {
       "tag": "ml_definition",
       "patterns": [
-        "what is machine learning", "define machine learning", "ml definition", "explain machine learning"
+        "what is machine learning", "define machine learning", "ml definition", "explain machine learning",
+        "machine learning meaning", "what does ml mean", "machine learning basics", "introduction to ml",
+        "ml explained", "machine learning overview", "what is ml", "machine learning concept"
       ],
       "responses": [
         "Machine Learning is a subset of AI that enables computers to learn and make decisions from data without being explicitly programmed for every task.",
-        "ML is the science of getting computers to act without being explicitly programmed by learning patterns from data."
+        "ML is the science of getting computers to act without being explicitly programmed by learning patterns from data.",
+        "Machine Learning allows systems to automatically learn and improve from experience without being explicitly programmed. It focuses on developing algorithms that can access data and learn patterns.",
+        "ML is about creating algorithms that can learn from and make predictions or decisions based on data, rather than following pre-programmed instructions."
       ]
     },
     {
       "tag": "dl_definition",
       "patterns": [
-        "what is deep learning", "define deep learning", "dl definition", "explain deep learning"
+        "what is deep learning", "define deep learning", "dl definition", "explain deep learning",
+        "deep learning meaning", "what does dl mean", "deep learning basics", "introduction to dl",
+        "dl explained", "deep learning overview", "what is dl", "deep learning concept"
       ],
       "responses": [
-        "Deep Learning is a subset of machine learning that uses neural networks with multiple layers (deep networks) to model and understand complex patterns in data.",
-        "DL uses artificial neural networks with multiple hidden layers to learn hierarchical representations of data, mimicking how the human brain processes information."
+        "Deep Learning is a subset of machine learning that uses neural networks with multiple layers (deep networks) to model and understand complex patterns in data. Learn more: https://www.deeplearning.ai/",
+        "DL uses artificial neural networks with multiple hidden layers to learn hierarchical representations of data, mimicking how the human brain processes information. Great course: https://www.coursera.org/specializations/deep-learning",
+        "Deep Learning employs neural networks with many layers to progressively extract higher-level features from raw input, enabling complex pattern recognition. Try: https://www.udacity.com/course/deep-learning-nanodegree--nd101",
+        "DL is inspired by the human brain's neural networks and excels at tasks like image recognition, natural language processing, and speech recognition. Free resource: https://www.fast.ai/"
       ]
     },
     {
       "tag": "ml_types",
       "patterns": [
-        "types of machine learning", "ml types", "machine learning categories", "supervised unsupervised"
+        "types of machine learning", "ml types", "machine learning categories", "supervised unsupervised",
+        "classification of ml", "ml algorithms types", "kinds of machine learning", "machine learning taxonomy",
+        "supervised learning", "unsupervised learning", "reinforcement learning", "semi supervised learning"
       ],
       "responses": [
         "There are three main types of ML: 1) Supervised Learning (labeled data), 2) Unsupervised Learning (unlabeled data), and 3) Reinforcement Learning (learning through rewards/penalties).",
-        "ML is categorized into: Supervised (classification, regression), Unsupervised (clustering, dimensionality reduction), and Reinforcement Learning (agent-environment interaction)."
+        "ML is categorized into: Supervised (classification, regression), Unsupervised (clustering, dimensionality reduction), and Reinforcement Learning (agent-environment interaction).",
+        "Main ML types: Supervised (learns from labeled examples), Unsupervised (finds patterns in unlabeled data), Reinforcement (learns through trial and error), and Semi-supervised (uses both labeled and unlabeled data).",
+        "The four primary ML paradigms are: Supervised (predicting outputs from inputs), Unsupervised (discovering hidden patterns), Reinforcement (learning optimal actions), and Semi-supervised (leveraging limited labeled data)."
       ]
     },
     {
       "tag": "neural_networks",
       "patterns": [
-        "neural networks", "neural network", "artificial neural network", "ann", "what are neural networks"
+        "neural networks", "neural network", "artificial neural network", "ann", "what are neural networks",
+        "how do neural networks work", "neural net", "neural network architecture", "neurons", "perceptron",
+        "multilayer perceptron", "mlp", "feedforward network", "backpropagation"
       ],
       "responses": [
         "Neural Networks are computing systems inspired by biological neural networks. They consist of interconnected nodes (neurons) that process information through weighted connections.",
-        "ANNs are networks of artificial neurons that can learn complex patterns. They form the foundation of deep learning and can approximate any continuous function."
+        "ANNs are networks of artificial neurons that can learn complex patterns. They form the foundation of deep learning and can approximate any continuous function.",
+        "Neural networks process information through layers of interconnected nodes, each applying mathematical transformations to input data and passing results forward.",
+        "A neural network learns by adjusting connection weights between neurons through training, enabling it to recognize patterns and make predictions on new data."
       ]
     },
     {
       "tag": "cnn",
       "patterns": [
-        "cnn", "convolutional neural network", "convolution", "image recognition", "computer vision"
+        "cnn", "convolutional neural network", "convolution", "image recognition", "computer vision",
+        "conv net", "convolutional layer", "pooling", "feature maps", "filters", "kernels",
+        "image classification", "object detection", "image processing with dl"
       ],
       "responses": [
         "CNNs are specialized neural networks for processing grid-like data such as images. They use convolutional layers to detect local features like edges and patterns.",
-        "Convolutional Neural Networks excel at image processing tasks. They use filters to detect features and are widely used in computer vision applications."
+        "Convolutional Neural Networks excel at image processing tasks. They use filters to detect features and are widely used in computer vision applications.",
+        "CNNs use convolution operations to scan images with learnable filters, detecting features like edges, textures, and shapes at different scales.",
+        "Key CNN components include convolutional layers (feature detection), pooling layers (dimensionality reduction), and fully connected layers (classification)."
+      ]
+    },
+    {
+      "tag": "rnn_lstm",
+      "patterns": [
+        "rnn", "recurrent neural network", "lstm", "gru", "sequence modeling", "time series",
+        "natural language processing", "nlp", "text analysis", "sequential data",
+        "long short term memory", "gated recurrent unit", "vanishing gradient"
+      ],
+      "responses": [
+        "RNNs are designed for sequential data like text or time series. They have memory to process sequences of varying lengths.",
+        "LSTM and GRU are advanced RNN variants that solve the vanishing gradient problem, enabling better learning of long-term dependencies.",
+        "Recurrent Neural Networks excel at tasks involving sequences: language translation, speech recognition, and time series prediction.",
+        "RNNs process sequences step by step, maintaining hidden states that capture information from previous time steps."
+      ]
+    },
+    {
+      "tag": "transformers",
+      "patterns": [
+        "transformers", "transformer architecture", "attention mechanism", "self attention",
+        "bert", "gpt", "large language models", "llm", "chatgpt", "attention is all you need",
+        "encoder decoder", "positional encoding", "multi head attention"
+      ],
+      "responses": [
+        "Transformers revolutionized NLP using attention mechanisms to process sequences in parallel, forming the basis of models like GPT and BERT.",
+        "The Transformer architecture uses self-attention to weigh the importance of different parts of the input sequence, enabling better context understanding.",
+        "Transformers excel at language tasks through attention mechanisms that allow the model to focus on relevant parts of the input sequence.",
+        "Key innovations: parallel processing of sequences, attention mechanisms for capturing dependencies, and scalability to very large models."
       ]
     },
     {
       "tag": "algorithms",
       "patterns": [
-        "ml algorithms", "machine learning algorithms", "popular algorithms", "classification algorithms"
+        "ml algorithms", "machine learning algorithms", "popular algorithms", "classification algorithms",
+        "regression algorithms", "clustering algorithms", "decision tree", "random forest", "svm",
+        "support vector machine", "naive bayes", "k means", "logistic regression", "linear regression",
+        "gradient boosting", "xgboost", "ensemble methods"
       ],
       "responses": [
         "Popular ML algorithms include: Linear Regression, Logistic Regression, Decision Trees, Random Forest, SVM, K-Means, and Neural Networks.",
-        "Common algorithms: Supervised (SVM, Random Forest, Naive Bayes), Unsupervised (K-Means, DBSCAN), and Deep Learning (CNN, RNN, Transformers)."
+        "Common algorithms: Supervised (SVM, Random Forest, Naive Bayes), Unsupervised (K-Means, DBSCAN), and Deep Learning (CNN, RNN, Transformers).",
+        "Classification: Decision Trees, Random Forest, SVM, Naive Bayes. Regression: Linear/Polynomial Regression, Ridge, Lasso. Clustering: K-Means, Hierarchical.",
+        "Ensemble methods like Random Forest and XGBoost combine multiple models for better performance. Choose algorithms based on your data type and problem complexity."
       ]
     },
     {
       "tag": "frameworks",
       "patterns": [
-        "ml frameworks", "deep learning frameworks", "tensorflow", "pytorch", "keras", "scikit-learn"
+        "ml frameworks", "deep learning frameworks", "tensorflow", "pytorch", "keras", "scikit-learn",
+        "sklearn", "pandas", "numpy", "matplotlib", "seaborn", "jupyter", "google colab",
+        "hugging face", "fastai", "jax", "which framework to use", "best ml libraries"
       ],
       "responses": [
-        "Popular ML/DL frameworks include: TensorFlow, PyTorch, Keras, Scikit-learn, XGBoost, and LightGBM. Each has its strengths for different use cases.",
-        "TensorFlow and PyTorch are leading DL frameworks. Scikit-learn is great for traditional ML. Keras provides a high-level API for neural networks."
+        "Popular ML/DL frameworks include: TensorFlow, PyTorch, Keras, Scikit-learn, XGBoost, and LightGBM. Learn TensorFlow: https://www.tensorflow.org/learn and PyTorch: https://pytorch.org/tutorials/",
+        "TensorFlow and PyTorch are leading DL frameworks. Scikit-learn is great for traditional ML. Keras provides a high-level API for neural networks. Try Google's ML Crash Course: https://developers.google.com/machine-learning/crash-course",
+        "For beginners: Scikit-learn (traditional ML), Keras (deep learning). For research: PyTorch. For production: TensorFlow. For NLP: Hugging Face Transformers. Learn on Coursera: https://www.coursera.org/learn/introduction-tensorflow",
+        "Essential Python libraries: NumPy (numerical computing), Pandas (data manipulation), Matplotlib/Seaborn (visualization), Jupyter (notebooks). Great Python course: https://www.python.org/about/gettingstarted/"
       ]
     },
     {
       "tag": "data_preprocessing",
       "patterns": [
-        "data preprocessing", "data cleaning", "feature engineering", "data preparation"
+        "data preprocessing", "data cleaning", "feature engineering", "data preparation",
+        "missing values", "outliers", "normalization", "standardization", "encoding",
+        "categorical variables", "feature scaling", "data augmentation", "train test split",
+        "cross validation", "data pipeline"
       ],
       "responses": [
         "Data preprocessing includes cleaning, normalization, handling missing values, feature scaling, and encoding categorical variables.",
-        "Key steps: data cleaning, handling outliers, feature selection, normalization, and splitting data into training/validation/test sets."
+        "Key steps: data cleaning, handling outliers, feature selection, normalization, and splitting data into training/validation/test sets.",
+        "Essential preprocessing: Remove/impute missing values, encode categorical features, scale numerical features, detect outliers, and create train/validation/test splits.",
+        "Data quality is crucial for ML success. Spend time understanding your data through EDA before applying preprocessing techniques."
       ]
     },
     {
       "tag": "model_evaluation",
       "patterns": [
-        "model evaluation", "accuracy", "precision recall", "f1 score", "confusion matrix"
+        "model evaluation", "accuracy", "precision recall", "f1 score", "confusion matrix",
+        "auc roc", "mean squared error", "mse", "mae", "rmse", "r squared", "cross validation",
+        "overfitting", "underfitting", "bias variance", "validation", "test set"
       ],
       "responses": [
         "Model evaluation metrics: Accuracy, Precision, Recall, F1-score, ROC-AUC for classification; MSE, MAE, R² for regression.",
-        "Use confusion matrices, cross-validation, and appropriate metrics based on your problem type and class distribution."
+        "Use confusion matrices, cross-validation, and appropriate metrics based on your problem type and class distribution.",
+        "Classification metrics: Accuracy (overall correctness), Precision (positive prediction accuracy), Recall (sensitivity), F1-score (harmonic mean).",
+        "Avoid overfitting by using validation sets, cross-validation, regularization, and monitoring training/validation performance curves."
       ]
     },
     {
       "tag": "applications",
       "patterns": [
-        "ml applications", "deep learning applications", "ai applications", "real world examples"
+        "ml applications", "deep learning applications", "ai applications", "real world examples",
+        "use cases", "industry applications", "computer vision applications", "nlp applications",
+        "recommendation systems", "fraud detection", "medical ai", "autonomous vehicles",
+        "chatbots", "voice recognition", "image recognition"
       ],
       "responses": [
         "ML/DL applications: Image recognition, Natural Language Processing, recommendation systems, autonomous vehicles, medical diagnosis, fraud detection.",
-        "Real-world uses: Netflix recommendations, Google Search, Siri/Alexa, medical imaging, financial trading, and predictive maintenance."
+        "Real-world uses: Netflix recommendations, Google Search, Siri/Alexa, medical imaging, financial trading, and predictive maintenance.",
+        "Computer Vision: Medical imaging, autonomous driving, facial recognition, quality control. NLP: Chatbots, translation, sentiment analysis, document processing.",
+        "Industry applications: Healthcare (diagnosis, drug discovery), Finance (fraud detection, algorithmic trading), Retail (recommendations, inventory), Manufacturing (predictive maintenance)."
       ]
     },
     {
       "tag": "getting_started",
       "patterns": [
-        "how to start", "getting started", "beginner", "learn machine learning", "where to begin"
+        "how to start", "getting started", "beginner", "learn machine learning", "where to begin",
+        "roadmap", "how to learn ml", "ml for beginners", "first steps", "learning path",
+        "prerequisites", "what to study first", "beginner guide", "starting journey"
       ],
       "responses": [
-        "Start with: 1) Learn Python basics, 2) Study statistics and linear algebra, 3) Practice with Scikit-learn, 4) Take online courses, 5) Work on projects.",
-        "Begin with fundamentals: math foundations, Python programming, then progress to ML algorithms and frameworks. Practice with real datasets!"
+        "Start with: 1) Learn Python basics, 2) Study statistics and linear algebra, 3) Practice with Scikit-learn, 4) Take online courses, 5) Work on projects. Check out Andrew Ng's ML Course: https://www.coursera.org/learn/machine-learning",
+        "Begin with fundamentals: math foundations, Python programming, then progress to ML algorithms and frameworks. Great beginner course: https://www.edx.org/course/introduction-to-artificial-intelligence-ai",
+        "Learning path: Python → Math (statistics, linear algebra) → Pandas/NumPy → Scikit-learn → Deep Learning frameworks → Projects. Try Kaggle Learn: https://www.kaggle.com/learn",
+        "Start with hands-on projects using simple datasets. Learn by doing, not just theory. Build a portfolio of projects on GitHub. Free resource: https://www.fast.ai/ for practical deep learning."
+      ]
+    },
+    {
+      "tag": "courses",
+      "patterns": [
+        "courses", "online courses", "ml courses", "deep learning courses", "best courses",
+        "course recommendations", "where to learn", "training", "certification", "coursera",
+        "udacity", "edx", "free courses", "paid courses", "nanodegree", "specialization"
+      ],
+      "responses": [
+        "Top ML/DL Courses: Andrew Ng's ML Course (Coursera): https://www.coursera.org/learn/machine-learning | Deep Learning Specialization: https://www.coursera.org/specializations/deep-learning | Fast.ai (Free): https://www.fast.ai/",
+        "Free Resources: Kaggle Learn: https://www.kaggle.com/learn | Google's ML Crash Course: https://developers.google.com/machine-learning/crash-course | MIT OpenCourseWare: https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/",
+        "Paid Options: Udacity ML Nanodegree: https://www.udacity.com/course/machine-learning-engineer-nanodegree--nd009t | Coursera ML Specializations | edX MicroMasters: https://www.edx.org/micromasters/mitx-statistics-and-data-science",
+        "University Courses: Stanford CS229: http://cs229.stanford.edu/ | MIT 6.034: https://ocw.mit.edu/courses/6-034-artificial-intelligence-fall-2010/ | Carnegie Mellon ML: http://www.cs.cmu.edu/~tom/10701_sp11/"
+      ]
+    },
+    {
+      "tag": "career_advice",
+      "patterns": [
+        "career in ml", "ml jobs", "data scientist", "ml engineer", "ai career", "job prospects",
+        "salary", "skills needed", "portfolio", "interview preparation", "job market",
+        "career transition", "becoming data scientist", "ml job roles"
+      ],
+      "responses": [
+        "ML careers include Data Scientist, ML Engineer, Research Scientist, AI Product Manager. Focus on building projects and demonstrating practical skills.",
+        "Key skills: Programming (Python/R), Statistics, ML algorithms, Data visualization, Domain expertise. Build a strong GitHub portfolio.",
+        "Job roles: Data Scientist (insights from data), ML Engineer (deploy models), Research Scientist (develop new methods), AI Consultant (business solutions).",
+        "Prepare for interviews: Practice coding, know ML theory, work on end-to-end projects, stay updated with latest trends, and develop communication skills."
+      ]
+    },
+    {
+      "tag": "math_foundations",
+      "patterns": [
+        "math for ml", "linear algebra", "statistics", "calculus", "probability", "mathematics",
+        "mathematical foundations", "linear algebra for ml", "statistics for ml", "derivatives",
+        "matrices", "vectors", "eigenvalues", "gradient descent", "optimization"
+      ],
+      "responses": [
+        "Essential math: Linear Algebra (vectors, matrices), Statistics (probability, distributions), Calculus (derivatives for optimization). Great course: https://www.khanacademy.org/math/linear-algebra",
+        "Linear algebra helps understand data transformations and neural networks. Statistics provides foundation for learning from data and uncertainty. Try: https://www.coursera.org/learn/linear-algebra-machine-learning",
+        "Key concepts: Matrix operations, eigenvalues/eigenvectors, probability distributions, Bayes' theorem, gradient descent, and optimization theory. Learn at: https://www.edx.org/course/introduction-to-probability",
+        "Don't worry about mastering all math upfront. Learn concepts as needed for specific algorithms and gradually build mathematical intuition. Resource: https://www.3blue1brown.com/essence-of-linear-algebra"
+      ]
+    },
+    {
+      "tag": "projects",
+      "patterns": [
+        "project ideas", "ml projects", "beginner projects", "portfolio projects", "practice projects",
+        "hands on learning", "what to build", "project suggestions", "real world projects",
+        "datasets", "kaggle", "github projects"
+      ],
+      "responses": [
+        "Beginner projects: Iris classification, House price prediction, Movie recommendation. Advanced: Image classification, NLP sentiment analysis, Time series forecasting. Find datasets: https://www.kaggle.com/datasets",
+        "Build end-to-end projects: Data collection → Preprocessing → Model training → Evaluation → Deployment. Document your process thoroughly. Tutorial projects: https://github.com/microsoft/ML-For-Beginners",
+        "Project ideas: Predict stock prices, classify images, analyze social media sentiment, recommend products, detect fraud, forecast sales. Great resource: https://www.analyticsvidhya.com/blog/2018/05/24-ultimate-data-science-projects-to-boost-your-knowledge-and-skills/",
+        "Use public datasets from Kaggle, UCI ML Repository, or collect your own data. Focus on solving real problems and explaining your approach clearly. More projects: https://github.com/ashishpatel26/500-AI-Machine-learning-Deep-learning-Computer-vision-NLP-Projects-with-code"
+      ]
+    },
+    {
+      "tag": "deployment",
+      "patterns": [
+        "model deployment", "production", "deploy ml model", "api", "cloud deployment",
+        "docker", "kubernetes", "aws", "gcp", "azure", "flask", "fastapi", "streamlit",
+        "model serving", "mlops", "ci cd", "monitoring"
+      ],
+      "responses": [
+        "Deploy models using Flask/FastAPI for REST APIs, Streamlit for web apps, or cloud platforms like AWS SageMaker, Google Cloud ML, Azure ML. Learn deployment: https://www.coursera.org/learn/machine-learning-engineering-for-production-mlops",
+        "Deployment pipeline: Model training → Validation → Containerization (Docker) → API creation → Cloud deployment → Monitoring. Great resource: https://fullstackdeeplearning.com/",
+        "MLOps practices: Version control (Git), experiment tracking (MLflow), containerization (Docker), orchestration (Kubernetes), monitoring (Prometheus). Course: https://www.udacity.com/course/machine-learning-devops-engineer-nanodegree--nd0821",
+        "Consider model size, latency requirements, and scalability. Use techniques like model compression, caching, and load balancing for production systems. Learn more: https://madewithml.com/"
+      ]
+    },
+    {
+      "tag": "ethics_bias",
+      "patterns": [
+        "ai ethics", "bias in ml", "fairness", "ethical ai", "algorithmic bias", "responsible ai",
+        "discrimination", "fairness in ml", "bias detection", "explainable ai", "transparency"
+      ],
+      "responses": [
+        "AI ethics is crucial: Address bias in data and models, ensure fairness across different groups, maintain transparency, and consider societal impact.",
+        "Common biases: Historical bias in training data, sampling bias, confirmation bias. Use diverse datasets and regular bias audits.",
+        "Responsible AI practices: Diverse teams, bias testing, explainable models, regular audits, stakeholder engagement, and ethical guidelines.",
+        "Tools for fairness: Fairness metrics, bias detection libraries (AIF360, Fairlearn), explainability tools (LIME, SHAP), and diverse evaluation."
       ]
     },
     {
       "tag": "help",
       "patterns": [
-        "help", "what can you do", "how can you help", "capabilities", "commands"
+        "help", "what can you do", "how can you help", "capabilities", "commands",
+        "topics", "what do you know", "assistance", "guide", "support"
       ],
       "responses": [
         "I can help with ML/DL concepts, algorithms, frameworks, career advice, project ideas, and answer technical questions about AI.",
-        "Ask me about machine learning algorithms, deep learning architectures, programming frameworks, math foundations, or career guidance in AI!"
+        "Ask me about machine learning algorithms, deep learning architectures, programming frameworks, math foundations, or career guidance in AI!",
+        "Topics I cover: ML algorithms, neural networks, data preprocessing, model evaluation, popular frameworks, career advice, project ideas, and more!",
+        "I'm here to help with everything from basic concepts to advanced topics. Whether you're starting out or looking to deepen your knowledge, just ask!"
+      ]
+    },
+    {
+      "tag": "thanks",
+      "patterns": [
+        "thank you", "thanks", "appreciate it", "helpful", "great", "awesome", "perfect",
+        "exactly what i needed", "that helps", "brilliant", "excellent"
+      ],
+      "responses": [
+        "You're welcome! Happy to help you on your ML/DL journey. Feel free to ask more questions anytime!",
+        "Glad I could help! Keep exploring and building amazing AI projects.",
+        "You're very welcome! Remember, the best way to learn ML is through practice and experimentation.",
+        "Happy to assist! Don't hesitate to reach out if you need help with any other ML/DL topics."
       ]
     },
     {
       "tag": "unknown",
       "patterns": [
-        "I don't understand", "what", "huh", "sorry", "repeat"
+        "I don't understand", "what", "huh", "sorry", "repeat", "unclear", "confusing",
+        "can you clarify", "what do you mean", "elaborate"
       ],
       "responses": [
         "I didn't quite understand that. Could you rephrase your question about machine learning or deep learning?",
         "Let me help you with ML/DL topics. Could you ask your question in a different way?",
-        "I'm specialized in machine learning and deep learning. What specific topic would you like to explore?"
+        "I'm specialized in machine learning and deep learning. What specific topic would you like to explore?",
+        "Could you be more specific? I can help with ML algorithms, deep learning, frameworks, career advice, or project ideas."
       ]
     }
   ]

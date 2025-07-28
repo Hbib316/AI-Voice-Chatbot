@@ -2,74 +2,47 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 import sqlite3
 import os
 import json
-import re
 from auth import init_db, register_user, login_user, get_user_conversations, save_conversation_to_db, verify_reset_credentials, update_password
+from chatbot_model import MLChatbot
 
 app = Flask(__name__)
 app.secret_key = 'habib'
 
-# Simple rule-based chatbot instead of transformer models
-class SimpleChatbot:
-    def __init__(self):
-        self.intents_data = self.load_intents_data()
-        self.conversation_history = []
-    
-    def load_intents_data(self):
-        """Load intents.json file"""
-        try:
-            with open("intents.json", "r") as f:
-                return json.load(f)
-        except FileNotFoundError:
-            return {"intents": []}
-    
-    def preprocess_text(self, text):
-        """Simple text preprocessing"""
-        return re.sub(r'[^\w\s]', '', text.lower().strip())
-    
-    def find_best_intent(self, user_input):
-        """Find the best matching intent based on keywords"""
-        user_input = self.preprocess_text(user_input)
-        best_match = None
-        best_score = 0
-        
-        for intent in self.intents_data.get("intents", []):
-            score = 0
-            for pattern in intent.get("patterns", []):
-                pattern_processed = self.preprocess_text(pattern)
-                # Simple keyword matching
-                common_words = set(user_input.split()) & set(pattern_processed.split())
-                if common_words:
-                    score += len(common_words) / len(pattern_processed.split())
-            
-            if score > best_score:
-                best_score = score
-                best_match = intent
-        
-        return best_match if best_score > 0.3 else None
-    
-    def generate_response(self, user_input):
-        """Generate response based on intents"""
-        intent = self.find_best_intent(user_input)
-        
-        if intent:
-            responses = intent.get("responses", ["I'm not sure how to respond to that."])
-            import random
-            return random.choice(responses)
-        else:
-            # Fallback responses
-            fallback_responses = [
-                "I'm not sure I understand. Could you rephrase that?",
-                "That's interesting! Can you tell me more about machine learning or deep learning?",
-                "I'm here to help with ML and DL questions. What would you like to know?",
-                "Could you ask that in a different way? I'm specialized in AI topics."
-            ]
-            import random
-            return random.choice(fallback_responses)
+# Global chatbot instance
+chatbot = None
 
-# Initialize simple chatbot
-chatbot = SimpleChatbot()
 # File to store conversations
 CONVERSATION_FILE = "conversations.json"
+
+def initialize_chatbot():
+    """Initialize the chatbot with automatic model training if needed"""
+    global chatbot
+    try:
+        print("Initializing chatbot...")
+        chatbot = MLChatbot()
+        print("✅ Chatbot initialized successfully!")
+    except Exception as e:
+        print(f"❌ Error initializing chatbot: {e}")
+        # Create a fallback chatbot
+        chatbot = FallbackChatbot()
+
+class FallbackChatbot:
+    """Fallback chatbot if main chatbot fails"""
+    def generate_response(self, text):
+        responses = [
+            "I'm having some technical difficulties. Please try again later.",
+            "Sorry, I'm not feeling well right now. Can you rephrase that?",
+            "I'm currently learning. Could you try a simpler question?",
+            "My brain is updating. Please be patient with me!"
+        ]
+        import random
+        return random.choice(responses)
+    
+    def get_model_info(self):
+        return {
+            "model_type": "fallback",
+            "status": "limited_functionality"
+        }
 
 def load_conversations():
     """Load conversations from file"""
@@ -177,6 +150,8 @@ def api_history():
 
 @app.route('/chat', methods=['POST'])
 def chat():
+    global chatbot
+    
     user_input = request.json.get('message', '').strip()
 
     if not user_input:
@@ -184,8 +159,12 @@ def chat():
     if len(user_input) > 500:
         return jsonify({'error': 'Input too long'}), 400
 
-    # Generate response using simple chatbot
-    bot_response = chatbot.generate_response(user_input)
+    try:
+        # Generate response using chatbot
+        bot_response = chatbot.generate_response(user_input)
+    except Exception as e:
+        print(f"Error generating response: {e}")
+        bot_response = "Sorry, I encountered an error. Please try again."
     
     # Save conversation
     save_conversation(user_input, bot_response)
@@ -201,10 +180,14 @@ def clear_history():
 
 @app.route('/health')
 def health_check():
+    global chatbot
+    model_info = chatbot.get_model_info() if hasattr(chatbot, 'get_model_info') else {}
+    
     return jsonify({
         'status': 'healthy', 
-        'model_type': 'rule-based',
-        'memory_optimized': True
+        'model_type': model_info.get('model_type', 'unknown'),
+        'memory_optimized': True,
+        'model_info': model_info
     })
 
 @app.route('/new_chat', methods=['POST'])
@@ -286,28 +269,48 @@ def forgot_password():
 
 @app.route('/model_info')
 def model_info():
+    global chatbot
     conversations = load_conversations()
+    model_info = chatbot.get_model_info() if hasattr(chatbot, 'get_model_info') else {}
     
     return jsonify({
-        'is_fine_tuned': False,
-        'model_type': 'rule-based',
         'conversation_count': len(conversations),
-        'memory_optimized': True
+        'memory_optimized': True,
+        **model_info
     })
 
-# Remove fine-tuning related endpoints to save memory
-# @app.route('/fine_tune', methods=['POST']) - REMOVED
-# @app.route('/reload_model', methods=['POST']) - REMOVED
+@app.route('/retrain_model', methods=['POST'])
+def retrain_model():
+    """Endpoint to retrain the model if needed"""
+    if 'user_id' not in session:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    global chatbot
+    try:
+        print("Retraining model...")
+        chatbot.train_model()
+        return jsonify({'message': 'Model retrained successfully!'})
+    except Exception as e:
+        return jsonify({'error': f'Error retraining model: {str(e)}'}), 500
 
 if __name__ == '__main__':
-    print("Initializing database...")
+    print("🚀 Starting Memory-Optimized Chatbot Server...")
+    print("=" * 50)
+    
+    # Initialize database
+    print("📊 Initializing database...")
     init_db()
     
-    print("Memory-optimized chatbot initialized")
-    print("Using rule-based responses instead of transformer models")
+    # Initialize chatbot (will auto-train if model doesn't exist)
+    initialize_chatbot()
     
+    # Load existing conversations
     conversations = load_conversations()
-    print(f"Found {len(conversations)} conversations")
+    print(f"📝 Found {len(conversations)} existing conversations")
+    
+    print("=" * 50)
+    print("✅ Server ready! Using lightweight ML model instead of transformers")
+    print("💾 Memory usage optimized for Render free tier")
     
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=False)

@@ -254,5 +254,21 @@
   {
     "user": "hello",
     "bot": "API token not configured"
+  },
+  {
+    "user": "Hello.",
+    "bot": "Hi there! Ready to explore the world of ML and DL? What would you like to know?"
+  },
+  {
+    "user": "What is deep learning?",
+    "bot": "Deep Learning is a subset of machine learning that uses neural networks with multiple layers (deep networks) to model and understand complex patterns in data."
+  },
+  {
+    "user": "Hello.",
+    "bot": "Good to see you! I'm here to help with your machine learning and deep learning questions."
+  },
+  {
+    "user": "Hello.",
+    "bot": "Hi there! Ready to explore the world of ML and DL? What would you like to know?"
   }
 ]
