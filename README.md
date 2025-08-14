@@ -1,91 +1,77 @@
-AI Chatbot
-A lightweight, memory-optimized chatbot application specializing in Machine Learning (ML) and Deep Learning (DL) topics. Built with Flask and Scikit-learn, this chatbot provides an interactive platform for users to learn about ML/DL concepts, algorithms, frameworks, and more. It includes user authentication, conversation history, and password reset functionality, all optimized for deployment on Render's free tier.
-Features
+# AI Voice Chatbot
 
-User Authentication: Secure user registration and login with password hashing using Werkzeug.
-Conversation History: Stores user conversations in a SQLite database and a JSON file for persistence.
-Password Reset: Allows users to reset their password using preferred animal and color as security credentials.
-ML/DL Knowledge Base: Responds to queries about ML/DL concepts, algorithms, frameworks, career advice, and project ideas using a pre-trained Scikit-learn model.
-Memory Optimization: Designed to run efficiently on resource-constrained environments like Render's free tier.
-Health Check: Provides a /health endpoint to monitor chatbot status and model information.
-Model Retraining: Supports retraining the chatbot model via an API endpoint.
-Fallback Mechanism: Includes a fallback chatbot for robust operation in case of initialization failures.
+A Flask-based AI chatbot specialized in Machine Learning and Deep Learning, featuring voice recognition, user authentication, and conversation history.
 
-Prerequisites
+## 🌐 Live Demo
 
-Python 3.9.16
-SQLite
-Dependencies listed in requirements.txt
+**Try it now**: [https://ai-voice-chatbot-oa9o.onrender.com/](https://ai-voice-chatbot-oa9o.onrender.com/)
 
+## 🚀 Features
 
+- **Voice Interaction**: Speech recognition and text-to-speech capabilities
+- **ML/DL Specialization**: Trained specifically for machine learning and deep learning topics
+- **User Authentication**: Secure login/register system with password reset
+- **Conversation History**: Track and search through chat history
+- **Lightweight Model**: Optimized for deployment on free hosting platforms
+- **Responsive Design**: Clean, modern web interface
 
-Install Dependencies:
+## 🛠️ Tech Stack
+
+- **Backend**: Flask (Python)
+- **Database**: SQLite
+- **ML Model**: Scikit-learn (TF-IDF + Logistic Regression)
+- **Frontend**: HTML/CSS/JavaScript with Speech API
+- **Deployment**: Render-ready configuration
+
+## 📦 Installation
+
+1. Clone the repository:
+```bash
+git clone <your-repo-url>
+cd ai-chatbot
+```
+
+2. Install dependencies:
+```bash
 pip install -r requirements.txt
+```
 
-Start the Application:
+3. Run the application:
+```bash
 python app.py
+```
 
-Alternatively, for production:
-gunicorn -c gunicorn.conf.py app:app
+4. Visit `http://localhost:5000` to use the chatbot
 
+## 🔧 Configuration
 
+The app uses environment variables:
+- `SECRET_KEY`: Flask session secret
+- `PORT`: Application port (default: 5000)
 
-Usage
+## 📱 Usage
 
-Access the Application:Open your browser and navigate to https://ai-voice-chatbot-oa9o.onrender.com
+1. **Register/Login**: Create an account or log in
+2. **Voice Chat**: Click the microphone button to speak
+3. **Text Chat**: Type messages in the input field
+4. **History**: View and search past conversations
+5. **Topics**: Ask about ML/DL concepts, algorithms, frameworks, career advice
 
-Register/Login:
+## 🎯 AI Capabilities
 
-Register a new account with a username, password, preferred animal, and preferred color.
-Log in to access the chatbot interface.
+The chatbot can help with:
+- Machine Learning fundamentals
+- Deep Learning concepts (CNN, RNN, Transformers)
+- Popular frameworks (TensorFlow, PyTorch, Scikit-learn)
+- Career advice in AI/ML
+- Project ideas and guidance
+- Mathematical foundations
+- Model deployment and MLOps
 
+## 🚀 Deployment
 
-Interact with the Chatbot:
+Ready for deployment on Render with included `render.yaml` configuration file.
 
-Ask questions about ML/DL topics (e.g., "What is machine learning?", "Explain neural networks").
-View conversation history via the /history endpoint.
-Start a new chat session or clear history as needed.
+## 📄 License
 
-
-Password Reset:
-
-Use the /forgot_password endpoint to reset your password by providing your username, preferred animal, and preferred color.
-
-
-API Endpoints:
-
-/chat: POST to send a message and receive a chatbot response.
-/api/history: GET to retrieve conversation history.
-/clear_history: POST to clear conversation history.
-/health: GET to check the application's health and model status.
-/retrain_model: POST to retrain the chatbot model.
-/reinitialize_chatbot: POST to reinitialize the chatbot.
-
-
-
-Project Structure
-
-app.py: Main Flask application with routes and chatbot logic.
-auth.py: Handles user authentication, database operations, and conversation storage.
-chatbot_model.py: Implements the ML chatbot using Scikit-learn's TF-IDF and Logistic Regression.
-intents.json: Defines intents and responses for the chatbot's knowledge base.
-gunicorn.conf.py: Configuration for Gunicorn to optimize performance in production.
-render.yaml: Configuration for deploying the application on Render.
-requirements.txt: Lists Python dependencies.
-templates/: Contains HTML templates for the web interface (e.g., index.html, login.html, register.html, forgot_password.html, history.html).
-static/: Stores static assets like CSS and JavaScript files.
-
-
-Model Details
-
-Model Type: Scikit-learn pipeline with TF-IDF vectorizer and Logistic Regression classifier.
-Training Data: Defined in intents.json with patterns and responses for various ML/DL topics.
-Training Process: The model is trained on startup if no pre-trained model exists. It can be retrained via the /retrain_model endpoint.
-Storage: The trained model is saved as intent_model.pkl in the model/ directory.
-
-
-
-
-Built with Flask, Scikit-learn, and SQLite for lightweight performance.
-Inspired by the need for an accessible ML/DL learning assistant.
-Deployed on Render for free-tier compatibility.
+Open source project - feel free to use and modify!
